@@ -40,20 +40,24 @@ Esto respalda usar ese nodo como fuente estática. Falta probar la lectura de su
 widget en el frontend real y el seguimiento de la conexión. No se debe localizar
 el campo por su posición o por ser el primer STRING de un nodo arbitrario.
 
-## Arquitectura candidata
+## Arquitectura implementada en v0.1.0
 
-Backend Python para validar el estado cargado y concatenar. Extensión JavaScript
-para editor, muro DOM, Reload y sincronización del estado serializado. Evitar
-dependencias de Python adicionales salvo necesidad demostrada.
+Backend Python sin dependencias adicionales para validar el estado cargado y
+concatenar. Extensión JavaScript para editor, muro DOM, Reload y sincronización
+del estado serializado. Mapeo clásico de custom nodes de ComfyUI y `WEB_DIRECTORY`.
 
-El mecanismo definitivo de widgets se escogerá después de probar el frontend
-objetivo. La carga conectada es una operación de edición, no una nueva fuente
-de verdad en la ejecución. Hay que comprobar si una entrada lazy permite mantener
-la conexión sin exigir ejecutar su fuente cuando solo se usa la instantánea.
+Un widget STRING declarado `state_json` transporta una instantánea con versión,
+secciones, fragmentos y opciones. El frontend lo oculta y crea un único DOM widget
+para los controles. El DOM widget no se serializa al prompt; el STRING sí.
+El borrador, truncamiento y estado plegado se guardan en `node.properties.tts_ui`.
+La fuente externa `source` es opcional y lazy; `check_lazy_status` no solicita su
+valor, ya que Reload lee el widget nativo en el navegador. Debe comprobarse este
+comportamiento con el motor y el frontend reales antes de darlo por validado.
 
 No confundir persistencia del workflow con envío del prompt: el frontend documenta
-controles diferentes para ambas rutas. La caché debe observar los inputs efectivos
-de ejecución; no se propone desactivarla globalmente para resolver sincronización.
+controles diferentes para ambas rutas. La selección cambia el input `state_json`,
+sin forzar `IS_CHANGED` ni desactivar la caché. Su funcionamiento con la caché real
+está pendiente de comprobación.
 
 ## Referencias oficiales verificadas
 

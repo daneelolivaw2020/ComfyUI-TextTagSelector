@@ -2,7 +2,9 @@
 
 ## Estado de las decisiones
 
-Documento de trabajo del 26 de octubre de 2026. Distingue los requisitos del plan
+Documento de trabajo del 26 de octubre de 2026. Existe una primera implementación
+de prueba v0.1.0; consultar `VALIDATION.md` para distinguir comprobaciones locales
+de la integración real pendiente. Este documento distingue los requisitos del plan
 original, las decisiones confirmadas y los detalles propuestos pendientes de
 validación. La existencia de esta especificación no implica que las pruebas
 técnicas hayan pasado.

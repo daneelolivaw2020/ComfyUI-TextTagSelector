@@ -1,6 +1,24 @@
 # Pruebas de viabilidad y aceptación
 
-**Estado inicial: ninguna prueba de integración o de Colab ejecutada.**
+**v0.1.0: pruebas locales completadas; integración real ComfyUI/Colab pendiente.**
+
+## Resultados locales del 26 de octubre de 2026
+
+- 13 pruebas Python: salida exacta, escapes, Unicode, selección y estado inválido;
+  importación de la extensión y clonación/actualización con Git de la celda de
+  instalación, incluyendo conservación de cambios locales.
+- 10 pruebas JavaScript: parsing, duplicados por aparición, recarga repetida,
+  truncamiento por grafemas, restauración y lectura de fuente nativa.
+- Prueba de navegador en Chrome headless: ancho natural y muro horizontal,
+  envío del JSON real de la interfaz a Python, restauración/clonación, borrador
+  independiente de la instantánea, fuente nativa simulada y error sin pérdida de
+  estado; 200 cápsulas, scroll y ajuste al reducir el ancho.
+- Inspección de la captura de pantalla producida por esa prueba.
+
+El anfitrión de widgets y el grafo del navegador están simulados. No se ejecutó el
+frontend completo ni el motor de ejecución de ComfyUI. Las pruebas siguientes
+siguen siendo necesarias en la instalación real, en especial serialización del
+prompt, deshacer/rehacer, modo de nodos, evaluación lazy y caché.
 
 ## Puerta de viabilidad
 
