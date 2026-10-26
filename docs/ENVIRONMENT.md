@@ -40,7 +40,7 @@ Esto respalda usar ese nodo como fuente estática. Falta probar la lectura de su
 widget en el frontend real y el seguimiento de la conexión. No se debe localizar
 el campo por su posición o por ser el primer STRING de un nodo arbitrario.
 
-## Arquitectura implementada en v0.1.0
+## Arquitectura implementada en v0.1.1
 
 Backend Python sin dependencias adicionales para validar el estado cargado y
 concatenar. Extensión JavaScript para editor, muro DOM, Reload y sincronización
@@ -51,13 +51,28 @@ secciones, fragmentos y opciones. El frontend lo oculta y crea un único DOM wid
 para los controles. El DOM widget no se serializa al prompt; el STRING sí.
 El borrador, truncamiento y estado plegado se guardan en `node.properties.tts_ui`.
 La fuente externa `source` es opcional y lazy; `check_lazy_status` no solicita su
-valor, ya que Reload lee el widget nativo en el navegador. Debe comprobarse este
+valor, ya que Reload lee las fuentes disponibles en el navegador. Debe comprobarse este
 comportamiento con el motor y el frontend reales antes de darlo por validado.
 
 No confundir persistencia del workflow con envío del prompt: el frontend documenta
 controles diferentes para ambas rutas. La selección cambia el input `state_json`,
 sin forzar `IS_CHANGED` ni desactivar la caché. Su funcionamiento con la caché real
 está pendiente de comprobación.
+
+El usuario confirmó funcionamiento básico en Colab de v0.1.0 y compartió una
+captura con secciones, cápsulas y salida. No se recibió una versión real de
+frontend ni una verificación exhaustiva de caché o deshacer/rehacer.
+
+En v0.1.1, `web/source.js` resuelve fuentes de texto nativas y Crystools, sigue sus
+enlaces y reproduce la salida concatenada de Crystools List of strings. Las
+lecturas de otros tipos de nodo son experimentales y muestran el campo importado;
+no se presume que un widget de entrada equivalga a una transformación de Python.
+Los fallos, ambigüedades y ciclos conservan la instantánea previa.
+
+Se revisaron [los nombres de nodo de Crystools](https://github.com/crystian/ComfyUI-Crystools/blob/main/nodes/_names.py),
+sus [primitivas](https://github.com/crystian/ComfyUI-Crystools/blob/main/nodes/primitive.py)
+y la implementación de [CListString.execute](https://github.com/crystian/ComfyUI-Crystools/blob/main/nodes/list.py).
+Su delimitador se aplica literalmente, sin interpretar escapes adicionales.
 
 ## Referencias oficiales verificadas
 

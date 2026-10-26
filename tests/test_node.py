@@ -48,6 +48,14 @@ class ConcatenationTests(unittest.TestCase):
     def test_suffix_once_and_no_trailing_separator(self):
         self.assertEqual(self.output(snapshot(("one",), separator=",", suffix=".")), "one.")
 
+    def test_fragments_with_commas_use_literal_separator_without_emitting_titles(self):
+        state = snapshot(("20 years old,",))
+        state["sections"][0]["title"] = "Age"
+        state["sections"].append({"title": "Gender", "fragments": [{"text": "woman,", "enabled": True}]})
+        self.assertEqual(self.output(state), "20 years old,, woman,")
+        state["options"]["separator"] = " "
+        self.assertEqual(self.output(state), "20 years old, woman,")
+
     def test_external_runtime_value_never_overrides_snapshot(self):
         self.assertEqual(self.output(snapshot(("loaded",)), source="new external text"), "loaded")
         node = module.TextTagSelector()

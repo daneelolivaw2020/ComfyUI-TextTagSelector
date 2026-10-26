@@ -64,19 +64,4 @@ export function labelFor(text, maximum) {
     return parts.length > maximum ? parts.slice(0, maximum).join("") + "…" : text;
 }
 
-export function readSource(node, draft) {
-    const slotIndex = node.inputs?.findIndex(input => input.name === "source") ?? -1;
-    const input = node.inputs?.[slotIndex];
-    if (input?.link == null) return draft;
-    const link = node.graph?.links?.get?.(input.link) ?? node.graph?.links?.[input.link];
-    const origin = node.getInputNode?.(slotIndex) ?? node.graph?.getNodeById?.(link?.origin_id);
-    if (!origin || origin.comfyClass !== "PrimitiveStringMultiline" || link?.origin_slot !== 0) {
-        throw new Error("Reload supports a direct connection from native Text (Multiline). Existing tags were preserved.");
-    }
-    if (origin.inputs?.some(item => item.name === "value" && item.link != null)) {
-        throw new Error("The source value is connected to another node. Use editable native Text (Multiline).");
-    }
-    const value = origin.widgets?.find(widget => widget.name === "value")?.value;
-    if (typeof value !== "string") throw new Error("Cannot read the source value. Existing tags were preserved.");
-    return value;
-}
+export { readSource, readSourceInfo } from "./source.js?v=0.1.1";

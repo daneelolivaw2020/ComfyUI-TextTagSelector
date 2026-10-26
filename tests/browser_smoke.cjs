@@ -95,14 +95,43 @@ window.fixture=window.makeNode(); window.ready=true;
         const connectedSnapshot = await page.evaluate(() => fixture.widget.value);
         await page.evaluate(() => { originNode.widgets[0].value='Unloaded replacement'; });
         assert.equal(await page.evaluate(() => fixture.widget.value), connectedSnapshot);
-        await page.evaluate(() => { originNode.comfyClass='UnsupportedNode'; });
+        await page.evaluate(() => { originNode.comfyClass='CustomText'; });
         await first.getByRole("button", {name:"Reload",exact:true}).click();
-        assert.equal(await page.evaluate(() => fixture.widget.value), connectedSnapshot, "failed Reload preserves state");
-        assert.match(await first.getByRole("status").textContent(), /direct connection/);
+        assert.equal(await first.locator(".tag").count(), 1);
+        assert.match(await first.getByRole("status").textContent(), /Experimental.*Python transformations/);
+        const experimentalSnapshot = await page.evaluate(() => fixture.widget.value);
+        await page.evaluate(() => { originNode.widgets=[]; });
+        await first.getByRole("button", {name:"Reload",exact:true}).click();
+        assert.equal(await page.evaluate(() => fixture.widget.value), experimentalSnapshot, "failed Reload preserves state");
+        assert.match(await first.getByRole("status").textContent(), /Cannot identify/);
+
+        await page.evaluate(() => {
+            window.textSource={id:2,comfyClass:'PrimitiveStringMultiline',inputs:[],widgets:[{name:'value',value:'--- Clothing\nwearing a hat,\nwith a skirt,'}]};
+            originNode.comfyClass='List of strings [Crystools]';
+            originNode.inputs=[{name:'string_1',type:'STRING',link:10}];
+            originNode.widgets=[{name:'string_1',value:'stale'},{name:'string_2',value:'with a shirt,'},{name:'delimiter',value:'\n'}];
+            fixture.node.graph.links[10]={origin_id:2,origin_slot:0};
+            fixture.node.graph.getNodeById=id=>id===2?textSource:originNode;
+        });
+        await first.getByRole("button", {name:"Reload",exact:true}).click();
+        assert.deepEqual(await first.locator(".tag").allTextContents(), ['wearing a hat,','with a skirt,','with a shirt,']);
+        await first.getByRole("button", {name:"wearing a hat,",exact:true}).click();
+        await first.getByRole("button", {name:"with a skirt,",exact:true}).click();
+        await first.getByLabel("Separator", {exact:true}).fill(" ");
+        await first.getByLabel("Use new lines", {exact:true}).uncheck();
+        await first.getByLabel("Suffix", {exact:true}).fill("");
+        await first.getByLabel("Maximum characters").click();
+        const commaSnapshot = await page.evaluate(() => fixture.widget.value);
+        const commaOutput = spawnSync(process.env.TTS_PYTHON || "python", ["-c",
+            "import sys; from node import TextTagSelector; print(TextTagSelector().concatenate(sys.stdin.read())[0], end='')"],
+            {cwd:root,input:commaSnapshot,encoding:"utf8"});
+        assert.equal(commaOutput.status, 0, commaOutput.stderr);
+        assert.equal(commaOutput.stdout, 'wearing a hat, with a skirt,');
 
         await page.evaluate(() => {
             originNode.comfyClass='PrimitiveStringMultiline';
-            originNode.widgets[0].value=Array.from({length:200},(_,i)=>'Tag '+i+' '+('x'.repeat(i%5*24))).join('\n');
+            originNode.inputs=[];
+            originNode.widgets=[{name:'value',value:Array.from({length:200},(_,i)=>'Tag '+i+' '+('x'.repeat(i%5*24))).join('\n')}];
         });
         await first.getByRole("button", {name:"Reload",exact:true}).click();
         assert.equal(await first.locator(".tag").count(), 200);
@@ -114,7 +143,7 @@ window.fixture=window.makeNode(); window.ready=true;
         await page.screenshot({path:path.join(root,".test-runtime","selector-smoke.png")});
         await writeFile(path.join(root,".test-runtime","browser-snapshot.json"), snapshot);
         assert.deepEqual(errors, []);
-        console.log("Browser smoke passed: horizontal wrap, truncation, Python handoff, restore/clone, native Reload/error retention, 200-tag scroll.");
+        console.log("Browser smoke passed: horizontal wrap, Python handoff, restore/clone, generic and Crystools Reload, comma separators, error retention, 200-tag scroll.");
     } finally {
         await browser?.close();
         await new Promise(resolve => server.close(resolve));

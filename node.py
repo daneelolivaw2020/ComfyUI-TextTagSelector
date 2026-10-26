@@ -73,7 +73,7 @@ class TextTagSelector:
             "optional": {
                 "source": ("STRING", {
                     "forceInput": True, "lazy": True,
-                    "tooltip": "Connect native Text (Multiline), then click Reload. Execution uses the loaded snapshot.",
+                    "tooltip": "Connect a text source and click Reload. Readable widgets and Crystools concatenation are supported; execution uses the loaded snapshot.",
                 }),
             },
         }

@@ -3,9 +3,9 @@
 Custom node en desarrollo para convertir líneas de texto en un muro horizontal
 de cápsulas seleccionables y concatenar la selección en una salida `STRING`.
 
-**Estado: v0.1.0, primera versión de prueba instalable.** Backend y pruebas locales
-comprobados; la integración completa con ComfyUI y el iframe real de Colab está
-pendiente. No requiere dependencias de Python adicionales.
+**Estado: v0.1.1, versión de prueba instalable.** El usuario confirmó funcionamiento
+básico de v0.1.0 en su Colab. Las nuevas fuentes externas se probaron localmente;
+su comprobación en esa instalación sigue pendiente. Sin dependencias de Python adicionales.
 
 ## Instalación en tu notebook de Colab
 
@@ -36,8 +36,8 @@ y reinicia ComfyUI y su interfaz.
 1. Busca **Text Tag Selector** en el menú de nodos, categoría **Luis/Text**.
 2. Abre **Edit text**, pega una línea por fragmento y pulsa **Reload**.
 3. Activa las cápsulas deseadas y conecta la salida **text** a un input STRING.
-4. Opcional: conecta **Text (Multiline)** nativo a **source** y pulsa Reload para
-   importar su contenido. Conexión directa, con su campo `value` editable.
+4. Opcional: conecta un nodo de texto a **source** y pulsa Reload para importar
+   su contenido. Consulta las fuentes admitidas más abajo.
 
 Reload no ejecuta el workflow. Editar el texto fuente no modifica los fragmentos
 ya cargados hasta el siguiente Reload. Contraer una sección no desactiva sus tags.
@@ -46,8 +46,7 @@ cargado, las selecciones y la configuración sin tener que repetir Reload.
 
 ## Funciones de esta versión
 
-- Texto interno multilineal, con editor plegable, o conexión desde el nodo
-  nativo **Text (Multiline)** (`PrimitiveStringMultiline`).
+- Texto interno multilineal plegable o conexión desde nodos de texto externos.
 - Carga manual mediante **Reload**, sin ejecutar el workflow ni recargar ComfyUI.
 - Una cápsula por línea, secciones `--- Nombre` y multiselección.
 - Muro horizontal adaptable al ancho, con scroll vertical interno.
@@ -61,12 +60,35 @@ cargado, las selecciones y la configuración sin tener que repetir Reload.
 - [Entorno observado y arquitectura propuesta](docs/ENVIRONMENT.md)
 - [Pruebas de viabilidad y aceptación](docs/VALIDATION.md)
 
-## Límites y comprobaciones
+## Fuentes externas
 
-La fuente externa inicial admite exclusivamente el nodo nativo multilineal
-conectado directamente. No admite texto calculado por otros nodos, subgrafos o
-nodos de reroute. La salida usa siempre la instantánea guardada, incluso si se
-recibe otro texto mediante la entrada `source` durante una ejecución por API.
+- **Text / Text (Multiline)** nativos y primitivas string de **Crystools**.
+- **List of strings [Crystools]**: conectar su salida **concatenated**. Reload lee
+  `string_1` a `string_8`, incluidos sus enlaces a otras fuentes legibles, omite
+  cadenas vacías y aplica literalmente su `delimiter`, como el nodo original.
+- Reroutes clásicos que conduzcan a una fuente legible.
+- **Experimental:** otros tipos de nodo con un campo de texto identificable.
+  Se intenta el campo que coincide con el nombre de la salida o un único campo
+  de texto en un nodo con una salida STRING. Un aviso indica qué campo se importó.
+  No se evalúan sus transformaciones de Python; leer el campo no garantiza
+  reproducir la salida calculada de un nodo arbitrario.
+
+No es necesario ejecutar el workflow para Reload. Los enlaces se siguen para
+leer valores disponibles en el frontend, con detección de ciclos. Si no se puede
+identificar o leer el contenido, se muestra el motivo y se conserva toda la carga
+anterior. No se sustituye por un valor obsoleto ni por el borrador interno.
+
+La salida del selector usa siempre la instantánea guardada. Subgrafos y resultados
+dinámicos de Python sin representación legible no están soportados.
+
+## Comas y separadores
+
+Los títulos de sección no se incluyen en la salida. Si los fragmentos ya terminan
+en coma, un Separator `, ` añade otra coma: `woman,` + `, ` + `athletic,` produce
+`woman,, athletic,`. Para esos textos, escribe **un solo espacio** en Separator.
+El resultado será `woman, athletic,`. La puntuación original se conserva.
+
+## Límites y comprobaciones
 
 Los encabezados `--- Título` están reservados; no se ofrece aún un escape para
 introducir una línea literal con ese formato. Se ignoran líneas de solo espacios.
@@ -75,8 +97,9 @@ se conservan. El resto del contenido conserva su puntuación y espacios.
 
 Se probaron Python, el instalador con un remoto Git local, las funciones de estado
 JavaScript y la interfaz real de navegador en un anfitrión de widgets simulado.
-Esa prueba no demuestra compatibilidad con el frontend completo de ComfyUI,
-su deshacer/rehacer, la caché real o el iframe de Colab; siguen pendientes.
+Esa prueba no demuestra compatibilidad completa con el frontend de ComfyUI,
+su deshacer/rehacer o la caché real. La confirmación del usuario sobre v0.1.0
+en Colab no cubre todas esas pruebas ni las nuevas fuentes de v0.1.1.
 
 ## Pruebas de desarrollo
 

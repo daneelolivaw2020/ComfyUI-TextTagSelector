@@ -1,18 +1,26 @@
 # Pruebas de viabilidad y aceptación
 
-**v0.1.0: pruebas locales completadas; integración real ComfyUI/Colab pendiente.**
+**v0.1.1: fuentes ampliadas probadas localmente; comprobación en Colab pendiente.**
+
+El usuario confirmó funcionamiento básico de v0.1.0 en Colab y aportó una captura
+con texto nativo conectado, secciones, selección y salida. Reportó comas dobles
+en fragmentos que ya terminan en coma y el rechazo de otros tipos de nodo al
+pulsar Reload. No se considera una comprobación exhaustiva del frontend o caché.
 
 ## Resultados locales del 26 de octubre de 2026
 
-- 13 pruebas Python: salida exacta, escapes, Unicode, selección y estado inválido;
+- 14 pruebas Python: salida exacta, escapes, Unicode, selección y estado inválido;
   importación de la extensión y clonación/actualización con Git de la celda de
-  instalación, incluyendo conservación de cambios locales.
-- 10 pruebas JavaScript: parsing, duplicados por aparición, recarga repetida,
-  truncamiento por grafemas, restauración y lectura de fuente nativa.
+  instalación, incluyendo conservación de cambios locales. Regresión para
+  títulos excluidos y uso de Separator espacio con fragmentos terminados en coma.
+- 16 pruebas JavaScript: parsing, duplicados por aparición, recarga repetida,
+  truncamiento por grafemas, restauración, fuentes nativas/Crystools, concatenación
+  anidada con delimitador literal, lectura experimental, errores y ciclos.
 - Prueba de navegador en Chrome headless: ancho natural y muro horizontal,
   envío del JSON real de la interfaz a Python, restauración/clonación, borrador
-  independiente de la instantánea, fuente nativa simulada y error sin pérdida de
-  estado; 200 cápsulas, scroll y ajuste al reducir el ancho.
+  independiente de la instantánea, fuentes nativas/Crystools y genéricas simuladas,
+  aviso experimental y error sin pérdida de estado; comprobación de comas en la
+  salida Python, 200 cápsulas, scroll y ajuste al reducir el ancho.
 - Inspección de la captura de pantalla producida por esa prueba.
 
 El anfitrión de widgets y el grafo del navegador están simulados. No se ejecutó el

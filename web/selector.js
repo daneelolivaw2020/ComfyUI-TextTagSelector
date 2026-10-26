@@ -1,4 +1,4 @@
-import { readState, reloadState, labelFor, readSource } from "./state.js?v=0.1.0";
+import { readState, reloadState, labelFor, readSourceInfo } from "./state.js?v=0.1.1";
 
 export function attachSelector(node) {
     const stateWidget = node.widgets?.find(widget => widget.name === "state_json");
@@ -119,7 +119,7 @@ export function attachSelector(node) {
             if (!state.sections.some(section => section.fragments.length)) {
                 const empty = document.createElement("div");
                 empty.className = "empty";
-                empty.textContent = "Edit text or connect native Text (Multiline), then click Reload.";
+                empty.textContent = "Edit text or connect a text node, then click Reload.";
                 wall.append(empty);
             }
         } catch (error) { status(error.message, true); }
@@ -144,14 +144,15 @@ export function attachSelector(node) {
     }
     function reload() {
         try {
-            const text = readSource(node, ui().draft);
+            const { text, warning } = readSourceInfo(node, ui().draft);
             const next = reloadState(text, readState(stateWidget.value));
             change(() => { write(next); ui().loadedText = text; });
-            status();
+            status(warning);
             render();
         } catch (error) { status(error.message, true); }
     }
     $(".reload").addEventListener("click", reload);
+    $(".separator").title = "Inserted literally between fragments. If your fragments already end with commas, use a single space here to avoid doubled commas.";
     textarea.addEventListener("input", () => {
         change(() => { ui().draft = textarea.value; });
         sourceLabel();

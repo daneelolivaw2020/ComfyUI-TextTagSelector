@@ -3,7 +3,7 @@
 ## Estado de las decisiones
 
 Documento de trabajo del 26 de octubre de 2026. Existe una primera implementación
-de prueba v0.1.0; consultar `VALIDATION.md` para distinguir comprobaciones locales
+de prueba v0.1.1; consultar `VALIDATION.md` para distinguir comprobaciones locales
 de la integración real pendiente. Este documento distingue los requisitos del plan
 original, las decisiones confirmadas y los detalles propuestos pendientes de
 validación. La existencia de esta especificación no implica que las pruebas
@@ -16,6 +16,10 @@ Confirmado por el usuario:
 3. El editor interno debe poder plegarse para dejar espacio al muro.
 4. Desarrollo conectado con GitHub desde el comienzo, en un repositorio
    independiente y público.
+5. Tras probar v0.1.0, el usuario pide permitir otros nodos además del nativo:
+   intentar fuentes legibles sin bloquearlas por tipo y conservar el estado si
+   alguna no se puede leer. v0.1.1 añade lecturas experimentales y un adaptador
+   para la salida concatenada de Crystools List of strings.
 
 ## Texto y secciones
 
@@ -64,8 +68,10 @@ identificar cuál fue editada o eliminada.
 
 Un error al obtener el texto muestra un aviso y conserva el último estado válido.
 Una fuente incompatible nunca provoca sustitución silenciosa por el texto interno.
-La compatibilidad inicial se limita al nodo nativo acordado, sin prometer lectura
-de cualquier salida `STRING`.
+Se admite texto nativo, primitivas string de Crystools, concatenación Crystools
+con entradas legibles y reroutes clásicos. Otros nodos se intentan por sus campos
+de texto, con aviso explícito de lectura experimental: no se ejecuta Python para
+reproducir una transformación desconocida. No se promete leer cualquier STRING.
 
 ## Sincronización y salida
 
@@ -128,8 +134,8 @@ silenciosamente en una salida vacía.
 - Contar caracteres visuales sin partir emojis o combinaciones Unicode.
 - Valores iniciales propuestos: Maximum characters 100, Use new lines OFF,
   Separator `, ` y Suffix vacío. No están confirmados todos los valores.
-- Prioridad inicial: conexión directa del nodo nativo. Reroutes y subgrafos
-  requieren comprobar las APIs y decidir el alcance antes de prometer soporte.
+- v0.1.1 añade seguimiento de conexiones y reroutes clásicos. Los subgrafos y
+  resultados arbitrarios calculados en Python siguen fuera del alcance probado.
 - Integrar cambios con el guardado y deshacer/rehacer de ComfyUI.
 - Indicación discreta de borrador pendiente de Reload, sin vista previa grande.
 
