@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# JavaScript and generated output
+node_modules/
+dist/
+coverage/
+
+# Local tools, runtime fixtures and private configuration
+.tools/
+.test-runtime/
+.env
+.env.*
+!.env.example
+*.log
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
