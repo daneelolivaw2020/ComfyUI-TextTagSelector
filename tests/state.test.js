@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { emptyState, labelFor, readSource, readSourceInfo, readState, reloadState } from "../web/state.js";
+import { emptyState, labelFor, readSource, readSourceInfo, readState, readUiSettings, reloadState } from "../web/state.js";
 
 const fragments = state => state.sections.flatMap(section => section.fragments);
 
@@ -58,6 +58,22 @@ test("saved JSON restores independent state and rejects malformed data", () => {
     for (const raw of ["null", "garbage", '{"version":2}', '{"version":1,"sections":[]}']) {
         assert.throws(() => readState(raw));
     }
+});
+
+test("malformed visual preferences recover without affecting execution state", () => {
+    const defaults = { draft: "", loadedText: "", editorOpen: true, maximum: 100, sections: {} };
+    for (const raw of [null, undefined, 5, "broken", [], {draft:null, loadedText:4, maximum:-1, sections:"broken"}]) {
+        assert.deepEqual(readUiSettings(raw), defaults);
+    }
+    assert.deepEqual(readUiSettings({sections:{good:false, invalid:"false"}}).sections, {good:false});
+});
+
+test("valid visual preferences survive and cloned section settings are independent", () => {
+    const saved = {draft:"café", loadedText:"old", editorOpen:false, maximum:0, sections:{hair:false}};
+    const restored = readUiSettings(saved);
+    assert.deepEqual(restored, saved);
+    restored.sections.hair = true;
+    assert.equal(saved.sections.hair, false);
 });
 
 function sourceFixture(value = "live text") {
@@ -199,4 +215,17 @@ test("cycles and missing linked inputs fail instead of using stale widget defaul
     assert.throws(() => readSource(selector), /cycle.*Existing tags were preserved/);
     selector.graph.links.delete(one.inputs[0].link);
     assert.throws(() => readSource(selector), /Cannot read the connection/);
+});
+
+test("invalid output slots cannot silently read a different output", () => {
+    const { add, connect, selector } = graphFixture();
+    const custom = add(1, "CustomText", [{ name: "text", type: "text", value: "wrong output" }]);
+    connect(custom, selector, "source");
+    const link = selector.graph.links.get(selector.inputs[0].link);
+    for (const invalid of [null, false, "", -1, 0.5, 1, 999, "NaN"]) {
+        link.origin_slot = invalid;
+        assert.throws(() => readSource(selector), /connection|output/i, `slot ${JSON.stringify(invalid)}`);
+    }
+    link.origin_slot = "0";
+    assert.equal(readSource(selector), "wrong output");
 });

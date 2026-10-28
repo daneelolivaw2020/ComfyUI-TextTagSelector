@@ -15,8 +15,14 @@ if NODE_DIR.exists():
     remote = subprocess.check_output(
         ["git", "-C", str(NODE_DIR), "remote", "get-url", "origin"], text=True
     ).strip()
-    if remote.removesuffix(".git").rstrip("/") != REPO.removesuffix(".git"):
+    if remote.rstrip("/").removesuffix(".git") != REPO.removesuffix(".git"):
         raise RuntimeError("The existing folder belongs to a different repository.")
+    branch = subprocess.run(
+        ["git", "-C", str(NODE_DIR), "symbolic-ref", "--quiet", "--short", "HEAD"],
+        capture_output=True, text=True,
+    )
+    if branch.returncode != 0 or branch.stdout.strip() != "main":
+        raise RuntimeError("The node is not on main. Switch to main explicitly before updating; the current checkout was preserved.")
     changes = subprocess.check_output(
         ["git", "-C", str(NODE_DIR), "status", "--porcelain"], text=True
     )

@@ -40,7 +40,7 @@ Esto respalda usar ese nodo como fuente estática. Falta probar la lectura de su
 widget en el frontend real y el seguimiento de la conexión. No se debe localizar
 el campo por su posición o por ser el primer STRING de un nodo arbitrario.
 
-## Arquitectura implementada en v0.1.1
+## Arquitectura implementada en v0.1.2
 
 Backend Python sin dependencias adicionales para validar el estado cargado y
 concatenar. Extensión JavaScript para editor, muro DOM, Reload y sincronización

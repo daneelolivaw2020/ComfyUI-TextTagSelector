@@ -1,4 +1,4 @@
-import { readState, reloadState, labelFor, readSourceInfo } from "./state.js?v=0.1.1";
+import { readState, readUiSettings, reloadState, labelFor, readSourceInfo } from "./state.js?v=0.1.2";
 
 export function attachSelector(node) {
     const stateWidget = node.widgets?.find(widget => widget.name === "state_json");
@@ -40,7 +40,12 @@ export function attachSelector(node) {
     let restoring = false, removed = false;
     node.properties ??= {};
     function ui() {
-        return node.properties.tts_ui ??= { draft: "", editorOpen: true, maximum: 100, sections: {}, loadedText: "" };
+        if (!node.properties || typeof node.properties !== "object" || Array.isArray(node.properties)) node.properties = {};
+        const settings = node.properties.tts_ui;
+        if (!settings || typeof settings !== "object" || Array.isArray(settings)) {
+            node.properties.tts_ui = readUiSettings(settings);
+        }
+        return node.properties.tts_ui;
     }
     function status(message = "", error = false) {
         $(".status").textContent = message;
@@ -130,11 +135,8 @@ export function attachSelector(node) {
         restoring = true;
         try {
             // Copy objects so clones/configure never share mutable UI properties.
-            node.properties.tts_ui = JSON.parse(JSON.stringify(ui()));
+            node.properties.tts_ui = readUiSettings(ui());
             const settings = ui();
-            settings.draft = typeof settings.draft === "string" ? settings.draft : "";
-            settings.maximum = Number.isSafeInteger(settings.maximum) && settings.maximum >= 0 ? settings.maximum : 100;
-            settings.sections ??= {};
             textarea.value = settings.draft;
             editor.open = settings.editorOpen !== false;
             $(".maximum").value = settings.maximum;
@@ -167,7 +169,7 @@ export function attachSelector(node) {
         render();
     });
     for (const [selector, key, property] of [[".separator", "separator", "value"], [".suffix", "suffix", "value"], [".newlines", "use_new_lines", "checked"]]) {
-        $(selector).addEventListener("change", event => {
+        $(selector).addEventListener(property === "checked" ? "change" : "input", event => {
             try { mutate(state => { state.options[key] = event.target[property]; }); status(); }
             catch (error) { status(error.message, true); }
         });

@@ -66,3 +66,15 @@ class InstallerTests(unittest.TestCase):
         self.node_dir.mkdir(parents=True)
         with self.assertRaisesRegex(RuntimeError, "not a Git repository"):
             self.run_cell()
+
+    def test_other_branch_or_detached_head_is_not_updated(self):
+        self.run_cell()
+        self.git("-C", self.node_dir, "checkout", "-b", "personal-experiment")
+        with self.assertRaisesRegex(RuntimeError, "main"):
+            self.run_cell()
+        self.assertEqual(self.git("-C", self.node_dir, "branch", "--show-current").strip(), "personal-experiment")
+        self.git("-C", self.node_dir, "checkout", "--detach")
+        before = self.git("-C", self.node_dir, "rev-parse", "HEAD")
+        with self.assertRaisesRegex(RuntimeError, "main"):
+            self.run_cell()
+        self.assertEqual(self.git("-C", self.node_dir, "rev-parse", "HEAD"), before)

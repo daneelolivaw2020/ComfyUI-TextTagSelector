@@ -60,10 +60,10 @@ window.fixture=window.makeNode(); window.ready=true;
         await first.getByRole("button", {name:"Blonde",exact:true}).click();
         await first.getByRole("button", {name:"Blue hair",exact:true}).click();
         await first.getByLabel("Separator", {exact:true}).fill(",");
+        assert.equal(await page.evaluate(() => JSON.parse(fixture.widget.value).options.separator), ",", "separator is saved before the input loses focus");
         await first.getByLabel("Suffix", {exact:true}).fill(".");
+        assert.equal(await page.evaluate(() => JSON.parse(fixture.widget.value).options.suffix), ".", "suffix is saved before the input loses focus");
         await first.getByLabel("Use new lines", {exact:true}).check();
-        // Blur text fields to commit the same change event as the live controls.
-        await first.getByLabel("Maximum characters").click();
         const snapshot = await page.evaluate(() => fixture.widget.value);
         const python = spawnSync(process.env.TTS_PYTHON || "python", ["-c",
             "import sys; from node import TextTagSelector; print(TextTagSelector().concatenate(sys.stdin.read())[0], end='')"],
@@ -81,6 +81,16 @@ window.fixture=window.makeNode(); window.ready=true;
         assert.equal(await clone.locator(".editor").evaluate(el => el.open), false);
         await clone.getByRole("button", {name:"Blonde",exact:true}).click();
         assert.equal(await page.evaluate(() => fixture.widget.value), snapshot, "clone does not share state with original");
+
+        await page.evaluate(() => {
+            for (const badUi of [null, 5, "broken", [], {sections:"broken", maximum:-1, draft:null}, {sections:[]}]) {
+                const recovered = makeNode({state:saved.state, properties:{tts_ui:badUi}});
+                if (recovered.widget.value !== saved.state) throw new Error('Restoration modified the loaded snapshot');
+                if (recovered.selector.root.shadowRoot.querySelectorAll('.tag[aria-pressed="true"]').length !== 2) throw new Error('Restoration lost valid selections');
+                recovered.node.onRemoved();
+                recovered.host.remove();
+            }
+        });
 
         await page.evaluate(() => {
             fixture.node.inputs[0].link=9;

@@ -12,10 +12,13 @@ export function readSourceInfo(node, draft) {
         const graph = target.graph ?? node.graph;
         const link = graph?.links?.get?.(input?.link) ?? graph?.links?.[input?.link];
         const origin = target.getInputNode?.(index) ?? graph?.getNodeById?.(link?.origin_id);
-        if (!origin || !link || !Number.isInteger(Number(link.origin_slot))) {
+        const rawSlot = link?.origin_slot;
+        const slot = typeof rawSlot === "number" || (typeof rawSlot === "string" && /^\d+$/.test(rawSlot))
+            ? Number(rawSlot) : NaN;
+        if (!origin || !link || !Number.isSafeInteger(slot) || slot < 0) {
             throw new Error(`Cannot read the connection to ${input?.name ?? "source"}.`);
         }
-        return output(origin, Number(link.origin_slot), depth + 1);
+        return output(origin, slot, depth + 1);
     }
 
     function inputValue(target, name, depth, missing) {
@@ -64,6 +67,7 @@ export function readSourceInfo(node, draft) {
         if (!slots) active.set(target, slots = new Set());
         slots.add(slot);
         try {
+            if (target.outputs && !target.outputs[slot]) throw new Error("The connected output no longer exists.");
             const type = target.comfyClass ?? target.type;
             if (type === "Reroute") {
                 if (slot !== 0 || target.inputs?.[0]?.link == null) throw new Error("The reroute has no readable source.");

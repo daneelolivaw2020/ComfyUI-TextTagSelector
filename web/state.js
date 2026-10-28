@@ -3,6 +3,19 @@ export function emptyState() {
     return { version: 1, sections: [], options: { use_new_lines: false, separator: ", ", suffix: "" } };
 }
 
+export function readUiSettings(raw) {
+    const settings = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+    const sections = settings.sections && typeof settings.sections === "object" && !Array.isArray(settings.sections)
+        ? Object.fromEntries(Object.entries(settings.sections).filter(([, value]) => typeof value === "boolean")) : {};
+    return {
+        draft: typeof settings.draft === "string" ? settings.draft : "",
+        loadedText: typeof settings.loadedText === "string" ? settings.loadedText : "",
+        editorOpen: settings.editorOpen !== false,
+        maximum: Number.isSafeInteger(settings.maximum) && settings.maximum >= 0 ? settings.maximum : 100,
+        sections,
+    };
+}
+
 export function readState(raw) {
     let state;
     try { state = JSON.parse(raw); }
@@ -64,4 +77,4 @@ export function labelFor(text, maximum) {
     return parts.length > maximum ? parts.slice(0, maximum).join("") + "…" : text;
 }
 
-export { readSource, readSourceInfo } from "./source.js?v=0.1.1";
+export { readSource, readSourceInfo } from "./source.js?v=0.1.2";

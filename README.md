@@ -3,7 +3,7 @@
 Custom node en desarrollo para convertir líneas de texto en un muro horizontal
 de cápsulas seleccionables y concatenar la selección en una salida `STRING`.
 
-**Estado: v0.1.1, versión de prueba instalable.** El usuario confirmó funcionamiento
+**Estado: v0.1.2, versión de prueba instalable.** El usuario confirmó funcionamiento
 básico de v0.1.0 en su Colab. Las nuevas fuentes externas se probaron localmente;
 su comprobación en esa instalación sigue pendiente. Sin dependencias de Python adicionales.
 
@@ -21,7 +21,21 @@ exec(compile(urlopen(installer).read(), installer, "exec"))
 La celda ejecuta el [instalador del repositorio](examples/colab_install.py), que
 clona el nodo en `/content/ComfyUI/custom_nodes/ComfyUI-TextTagSelector`. Las
 siguientes ejecuciones actualizan mediante `git pull --ff-only`. Si hay cambios
-locales, los conserva y muestra un error. No necesita token ni Colab Secret.
+locales, otra rama activa o un checkout sin rama, los conserva y muestra un error.
+La actualización automática requiere `main`. No necesita token ni Colab Secret.
+
+Si prefieres usar Git directamente, en una instalación nueva también basta esta
+celda; este nodo no necesita un paso adicional de `pip install`:
+
+```python
+!git clone https://github.com/daneelolivaw2020/ComfyUI-TextTagSelector.git /content/ComfyUI/custom_nodes/ComfyUI-TextTagSelector
+```
+
+Si ya existe la carpeta y estás en `main`, actualiza con:
+
+```python
+!git -C /content/ComfyUI/custom_nodes/ComfyUI-TextTagSelector pull --ff-only origin main
+```
 
 Si ComfyUI ya estaba funcionando, detenlo y arráncalo de nuevo después de la
 instalación. Después actualiza el iframe para cargar el JavaScript nuevo.
@@ -59,6 +73,7 @@ cargado, las selecciones y la configuración sin tener que repetir Reload.
 - [Especificación y decisiones](docs/SPEC.md)
 - [Entorno observado y arquitectura propuesta](docs/ENVIRONMENT.md)
 - [Pruebas de viabilidad y aceptación](docs/VALIDATION.md)
+- [Revisión y correcciones de v0.1.2](docs/REVIEW.md)
 
 ## Fuentes externas
 
@@ -99,7 +114,7 @@ Se probaron Python, el instalador con un remoto Git local, las funciones de esta
 JavaScript y la interfaz real de navegador en un anfitrión de widgets simulado.
 Esa prueba no demuestra compatibilidad completa con el frontend de ComfyUI,
 su deshacer/rehacer o la caché real. La confirmación del usuario sobre v0.1.0
-en Colab no cubre todas esas pruebas ni las nuevas fuentes de v0.1.1.
+en Colab no cubre todas esas pruebas ni los cambios posteriores.
 
 ## Pruebas de desarrollo
 

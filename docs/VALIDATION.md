@@ -1,6 +1,23 @@
 # Pruebas de viabilidad y aceptación
 
-**v0.1.1: fuentes ampliadas probadas localmente; comprobación en Colab pendiente.**
+**v0.1.2: revisión y pruebas locales completas; comprobación de cambios en Colab pendiente.**
+
+## Revisión del 27 de octubre de 2026
+
+- 15 pruebas Python, incluidas instalación inicial, actualización y conservación
+  de otras ramas y checkouts sin rama activa.
+- 19 pruebas JavaScript, incluyendo rechazo de slots nulos, negativos o fuera
+  de rango y recuperación de preferencias visuales inválidas.
+- Prueba de navegador ampliada: Separator y Suffix ya están en el estado enviado
+  a Python antes de perder el foco; preferencias visuales dañadas no borran
+  fragmentos ni selecciones válidos. Continúan pasando los casos de clonación,
+  fuentes externas, errores de Reload y scroll de 200 cápsulas.
+- Se reprodujeron fallos de la versión anterior mediante las regresiones de
+  campos con foco, slots inválidos y actualización desde otra rama antes de
+  aplicar las correcciones. Detalles en [REVIEW.md](REVIEW.md).
+
+El navegador usa un anfitrión de widgets simulado; estas pruebas no sustituyen
+la comprobación del frontend completo, caché y deshacer/rehacer en ComfyUI.
 
 El usuario confirmó funcionamiento básico de v0.1.0 en Colab y aportó una captura
 con texto nativo conectado, secciones, selección y salida. Reportó comas dobles
